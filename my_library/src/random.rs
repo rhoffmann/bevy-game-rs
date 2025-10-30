@@ -1,6 +1,10 @@
 use std::ops::Range;
 
-use rand::{Rng, SeedableRng, rngs::StdRng};
+use rand::{
+    Rng, SeedableRng,
+    distr::{Distribution, StandardUniform, uniform::SampleUniform},
+    rngs::StdRng,
+};
 
 pub struct RandomNumberGenerator {
     rng: StdRng,
@@ -17,8 +21,19 @@ impl RandomNumberGenerator {
             rng: StdRng::seed_from_u64(seed),
         }
     }
-    pub fn range(&mut self, range: Range<u32>) -> u32 {
+
+    pub fn range<T>(&mut self, range: Range<T>) -> T
+    where
+        T: SampleUniform + PartialOrd,
+    {
         self.rng.random_range(range)
+    }
+
+    pub fn next<T>(&mut self) -> T
+    where
+        StandardUniform: Distribution<T>,
+    {
+        self.rng.random()
     }
 }
 
@@ -43,6 +58,16 @@ mod test {
     }
 
     #[test]
+    fn test_range_floats() {
+        let mut rng = RandomNumberGenerator::new();
+        for _ in 0..1000 {
+            let f = rng.range(-5000.0f32..5000.0f32);
+            assert!(f >= -5000.0);
+            assert!(f < 5000.0);
+        }
+    }
+
+    #[test]
     fn test_reproducibility() {
         let mut rng = (
             RandomNumberGenerator::seeded(1),
@@ -54,5 +79,16 @@ mod test {
                 rng.1.range(u32::MIN..u32::MAX)
             )
         })
+    }
+
+    #[test]
+    fn test_next_generic() {
+        let mut rng = RandomNumberGenerator::new();
+        let n: u8 = rng.next();
+        assert!(n <= u8::MAX);
+        let f: f64 = rng.next();
+        assert!(f >= 0.0 && f < 1.0);
+        let g = rng.next::<f32>();
+        assert!(g >= 0.0 && g < 1.0);
     }
 }
