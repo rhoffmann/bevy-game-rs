@@ -60,8 +60,8 @@ fn setup(
         UVec2::splat(DIE_SIZE as u32), // cell size
         3,                             // columns
         2,                             // rows
-        Some(UVec2::new(16, 0)),       // padding (x, y)
-        Some(UVec2::new(16, 0)),       // offset (x, y)
+        None,                          // Some(UVec2::new(8, 0)),        // padding (x, y)
+        Some(UVec2::new(32, 0)),       // offset (x, y)
     );
     let texture_atlas_layout = texture_atlas_layouts.add(layout);
 
@@ -196,7 +196,7 @@ fn cpu(
                     &mut commands,
                     &assets,
                     new_roll as usize,
-                    Color::Srgba(Srgba::new(0.0, 0.0, 0.1, 1.0)),
+                    Color::Srgba(Srgba::new(0.0, 0.0, 1.0, 1.0)),
                 );
             }
         } else {
