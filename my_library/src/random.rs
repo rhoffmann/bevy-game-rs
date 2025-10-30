@@ -2,7 +2,10 @@ use std::ops::Range;
 
 use rand::{
     Rng, SeedableRng,
-    distr::{Distribution, StandardUniform, uniform::SampleUniform},
+    distr::{
+        Distribution, StandardUniform,
+        uniform::{SampleRange, SampleUniform},
+    },
     rngs::StdRng,
 };
 
@@ -22,7 +25,7 @@ impl RandomNumberGenerator {
         }
     }
 
-    pub fn range<T>(&mut self, range: Range<T>) -> T
+    pub fn range<T>(&mut self, range: impl SampleRange<T>) -> T
     where
         T: SampleUniform + PartialOrd,
     {
@@ -51,9 +54,9 @@ mod test {
     fn test_range_bounds() {
         let mut rng = RandomNumberGenerator::new();
         for _ in 0..1000 {
-            let n = rng.range(1..10);
+            let n = rng.range(1..=10);
             assert!(n >= 1);
-            assert!(n < 10);
+            assert!(n <= 10);
         }
     }
 
